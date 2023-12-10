@@ -7,14 +7,24 @@ def wczytaj_slowa_z_csv(plik_csv):
         slowa = [row[0] for row in csv.reader(csvfile)]
     return slowa
 
-def generuj_historyjke(slowo_klucz, przymiotniki, czasowniki, rzeczowniki, przyimki, dlugosc=150):
+
+import random
+
+import random
+
+def generuj_historyjke(slowo_klucz, przymiotniki, przyslowki, czasowniki, dopelniacze, rzeczowniki, przyimki, dlugosc=150, max_rekurencja=10):
     historia = ""
     ilosc_slow = 0
 
     # Zainicjowanie flagi informującej, czy słowo kluczowe zostało już użyte
     slowo_klucz_uzyte = False
+    rekurencja = 0
 
     while ilosc_slow < dlugosc:
+        # Wybór losowej kolejności części zdania
+        kolejnosc_czesci_zdania = ['przymiotniki', 'przyslowki', 'czasowniki', 'dopelniacze', 'rzeczowniki', 'przyimki']
+        random.shuffle(kolejnosc_czesci_zdania)
+
         # Wybór losowego słowa z każdej kategorii
         slowa_kategorii = {
             'przymiotniki': random.choice(przymiotniki),
@@ -26,8 +36,8 @@ def generuj_historyjke(slowo_klucz, przymiotniki, czasowniki, rzeczowniki, przyi
             'slowo_klucz': slowo_klucz if not slowo_klucz_uzyte else random.choice(przymiotniki)
         }
 
-        # Utworzenie fragmentu historyjki
-        fragment = f"{slowa_kategorii['przymiotniki']} {slowa_kategorii['czasowniki']} {slowa_kategorii['rzeczowniki']} {slowa_kategorii['dopelniacze']} {slowa_kategorii['przyslowki']} {slowa_kategorii['przyimki']} {slowa_kategorii['slowo_klucz']}."
+        # Utworzenie fragmentu historyjki w losowej kolejności
+        fragment = " ".join([f"{slowa_kategorii[kategoria]}" for kategoria in kolejnosc_czesci_zdania])
 
         # Sprawdzenie, czy dodanie fragmentu nie przekroczy długości 150 słów
         if ilosc_slow + len(fragment.split()) <= dlugosc:
@@ -39,7 +49,31 @@ def generuj_historyjke(slowo_klucz, przymiotniki, czasowniki, rzeczowniki, przyi
         else:
             break
 
+        # Sprawdzenie, czy słowo kluczowe jest w historii
+        if slowo_klucz in historia:
+            break
+
+        rekurencja += 1
+        if rekurencja >= max_rekurencja:
+            break
+
+    # Dodanie kropki na końcu całej historii
+    historia = historia.strip() + "."
+
     return historia.strip()
+
+# Przykład użycia
+slowo_klucz = "dom"
+przymiotniki = ["piękny", "duży", "czerwony"]
+przyslowki = ["szybko", "ostro", "śmiało"]
+czasowniki = ["biegnie", "skacze", "pływa"]
+dopelniacze = ["najpiękniejszy", "największy", "najnowszy"]
+rzeczowniki = ["kot", "samochód", "kwiat"]
+przyimki = ["przy", "na", "pod"]
+
+historyjka = generuj_historyjke(slowo_klucz, przymiotniki, przyslowki, czasowniki, dopelniacze, rzeczowniki, przyimki, dlugosc=150, max_rekurencja=10)
+print(historyjka)
+
 
 # Wczytanie słów z plików CSV
 przymiotniki = wczytaj_slowa_z_csv('adjectives.csv')
@@ -53,7 +87,7 @@ dopelniacze = wczytaj_slowa_z_csv('genitive.csv')
 slowo_klucz = input("Wprowadź słowo kluczowe: ")
 
 # Generowanie historyjki na podstawie słowa kluczowego
-historyjka = generuj_historyjke(slowo_klucz, przymiotniki, czasowniki, rzeczowniki, przyimki, dlugosc=150)
+historyjka = generuj_historyjke(slowo_klucz, przymiotniki, przyslowki, czasowniki, dopelniacze, rzeczowniki, przyimki, dlugosc=150)
 
 # Wyświetlenie wygenerowanej historyjki
 # print("\nWygenerowana historyjka:")
